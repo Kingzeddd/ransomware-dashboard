@@ -5,9 +5,11 @@ services:
     region: frankfurt
     plan: free
     buildCommand: "./build.sh"
-    startCommand: "gunicorn ransomware_control.ransomware_control.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "cd ransomware_control && gunicorn ransomware_control.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: PYTHON_VERSION
         value: "3.9.18"
       - key: SECRET_KEY
         generateValue: true
+      - key: DEBUG
+        value: "False"
