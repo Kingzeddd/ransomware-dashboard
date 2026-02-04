@@ -5,9 +5,9 @@ echo "Installing Python dependencies..."
 pip install -r requirements.txt
 
 echo "Collecting static files..."
-python ransomware_control/manage.py collectstatic --no-input
+python manage.py collectstatic --no-input
 
 echo "Running database migrations..."
-python ransomware_control/manage.py migrate
+python manage.py migrate
 
 echo "Build completed successfully!"
