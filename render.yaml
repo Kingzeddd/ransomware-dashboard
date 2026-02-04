@@ -12,4 +12,5 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DJANGO_SETTINGS_MODULE
-        value: ransomware_control.settings
+        value: ransomware_control.ransomware_control.settings
+
