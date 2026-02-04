@@ -6,7 +6,11 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ransomware_control.settings')
+    os.environ.setdefault(
+    'DJANGO_SETTINGS_MODULE',
+    'ransomware_control.ransomware_control.settings'
+)
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
