@@ -1,0 +1,98 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Dashboard - Machines Infectées{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 1.5rem; color: #ff0000;">📊 Statistiques Globales</h2>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Total Machines</h3>
+        <div class="value">{{ total_machines }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Machines Actives</h3>
+        <div class="value">{{ active_machines }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Fichiers Chiffrés</h3>
+        <div class="value">{{ encrypted_machines }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Paiements Reçus</h3>
+        <div class="value">{{ paid_machines }}</div>
+    </div>
+</div>
+
+<h2 style="margin: 2rem 0 1rem; color: #ff0000;">💻 Machines Infectées</h2>
+
+{% if machines %}
+<div class="machines-table">
+    <table>
+        <thead>
+            <tr>
+                <th>ID Machine</th>
+                <th>Hostname</th>
+                <th>Utilisateur</th>
+                <th>OS</th>
+                <th>Statut</th>
+                <th>Fichiers</th>
+                <th>Paiement</th>
+                <th>Dernière Activité</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for machine in machines %}
+            <tr>
+                <td><code>{{ machine.machine_id|truncatechars:20 }}</code></td>
+                <td><strong>{{ machine.hostname }}</strong></td>
+                <td>{{ machine.username }}</td>
+                <td>{{ machine.os_info }}</td>
+                <td>
+                    {% if machine.is_decrypted %}
+                        <span class="badge success">Déchiffré</span>
+                    {% elif machine.is_encrypted %}
+                        <span class="badge danger">Chiffré</span>
+                    {% elif machine.is_activated %}
+                        <span class="badge warning">Activé</span>
+                    {% else %}
+                        <span class="badge info">En Veille</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if machine.files_encrypted > 0 %}
+                        <strong style="color: #ff0000;">{{ machine.files_encrypted }}</strong>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if machine.payment_received %}
+                        <span class="badge success">✓ {{ machine.payment_amount }} FCFA</span>
+                    {% else %}
+                        <span class="badge danger">✗ Non reçu</span>
+                    {% endif %}
+                </td>
+                <td>{{ machine.last_seen|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="{% url 'machine_detail' machine.machine_id %}" class="btn btn-primary">Détails</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="detail-card">
+    <p style="text-align: center; color: #888; padding: 2rem;">
+        Aucune machine infectée pour le moment.
+    </p>
+</div>
+{% endif %}
+{% endblock %}

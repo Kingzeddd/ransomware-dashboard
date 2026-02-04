@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ransomware-control
+    env: python
+    region: frankfurt
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "cd ransomware_control && gunicorn ransomware_control.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.9.18"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DJANGO_SETTINGS_MODULE
+        value: ransomware_control.settings

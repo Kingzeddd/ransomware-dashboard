@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ransomware Control Dashboard{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #eee;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #ff0000;
+            box-shadow: 0 4px 6px rgba(255, 0, 0, 0.3);
+        }
+        
+        .navbar h1 {
+            color: #ff0000;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff0000;
+        }
+        
+        .stat-card h3 {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        
+        .stat-card .value {
+            color: #ff0000;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .machines-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: rgba(255, 0, 0, 0.2);
+        }
+        
+        th {
+            padding: 1rem;
+            text-align: left;
+            color: #ff0000;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        
+        td {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        tbody tr:hover {
+            background: rgba(255, 0, 0, 0.1);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge.success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #0f0;
+            border: 1px solid #0f0;
+        }
+        
+        .badge.warning {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+            border: 1px solid #ffa500;
+        }
+        
+        .badge.danger {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+            border: 1px solid #ff0000;
+        }
+        
+        .badge.info {
+            background: rgba(0, 150, 255, 0.2);
+            color: #0096ff;
+            border: 1px solid #0096ff;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: #ff0000;
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        
+        .btn-primary:hover {
+            background: #cc0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+        }
+        
+        .btn-success {
+            background: #00ff00;
+            color: #000;
+        }
+        
+        .btn-success:hover {
+            background: #00cc00;
+        }
+        
+        .btn-danger {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #cc0000;
+        }
+        
+        .messages {
+            margin-bottom: 1rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #0f0;
+            color: #0f0;
+        }
+        
+        .alert-warning {
+            background: rgba(255, 165, 0, 0.2);
+            border: 1px solid #ffa500;
+            color: #ffa500;
+        }
+        
+        .alert-info {
+            background: rgba(0, 150, 255, 0.2);
+            border: 1px solid #0096ff;
+            color: #0096ff;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .detail-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #aaa;
+            font-weight: 600;
+        }
+        
+        .detail-value {
+            color: #fff;
+        }
+        
+        .logs-section {
+            margin-top: 2rem;
+        }
+        
+        .log-entry {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #ff0000;
+            border-radius: 3px;
+        }
+        
+        .log-time {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .log-status {
+            color: #ff0000;
+            font-weight: 600;
+            margin: 0.3rem 0;
+        }
+        
+        .log-details {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🔒 RANSOMWARE CONTROL PANEL</h1>
+    </div>
+    
+    <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>
